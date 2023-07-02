@@ -7,7 +7,7 @@ import (
 
 func EncryptWithRepeatingXORKey(input, key string) (string, error) {
 	if len(key) == 0 {
-		return "", errors.New("key length must be at least one")
+		return "", errors.New("key length must be at least one byte")
 	}
 
 	inputLength := len(input)

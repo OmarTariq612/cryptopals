@@ -11,10 +11,10 @@ I go crazy when I hear a cymbal`
 
 	actualOutput, err := EncryptWithRepeatingXORKey(input, "ICE")
 	if err != nil {
-		t.Errorf("err: %s", err.Error())
+		t.Fatalf("err: %s", err.Error())
 	}
 
 	if expectedOutput != actualOutput {
-		t.Errorf("%s\nAND\n%s\nARE NOT THE SAME!\n", actualOutput, expectedOutput)
+		t.Fatalf("%s\nAND\n%s\nARE NOT THE SAME!\n", actualOutput, expectedOutput)
 	}
 }

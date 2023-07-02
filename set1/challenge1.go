@@ -47,6 +47,7 @@ func HexToBase64(hex string) (string, error) {
 		out.WriteByte(base64Space[(temp&0x00FC0000)>>18])
 		out.WriteByte(base64Space[(temp&0x0003F000)>>12])
 		out.WriteByte('=')
+		out.WriteByte('=')
 	case 2:
 		temp = uint32(bytes[it]) << 16
 		temp += uint32(bytes[it+1]) << 8
