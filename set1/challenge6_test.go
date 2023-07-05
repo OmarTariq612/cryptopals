@@ -12,5 +12,6 @@ func TestDecryptWithRepeatingXORKey(t *testing.T) {
 	}
 
 	fmt.Println(key)
+	fmt.Println(string(key))
 	fmt.Println(len(key))
 }
