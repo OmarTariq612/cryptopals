@@ -4,7 +4,6 @@ import (
 	"crypto/aes"
 	cryptoRand "crypto/rand"
 	"fmt"
-	"math/rand"
 	mathRand "math/rand"
 )
 
@@ -34,7 +33,7 @@ func NewEncrypter() Encrypter {
 			return nil, err
 		}
 
-		if rand.Intn(2) == 0 {
+		if mathRand.Intn(2) == 0 {
 			iv := make([]byte, 16)
 			if _, err := cryptoRand.Read(iv); err != nil {
 				return nil, err
