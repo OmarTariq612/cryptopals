@@ -39,16 +39,21 @@ func IsItECB(input []byte, blockSize int) (bool, error) {
 	return false, nil
 }
 
-func PKCS7Unpad(input []byte, blockSize int) []byte {
+func PKCS7Unpad(input []byte, blockSize int) ([]byte, error) {
 	if len(input)%blockSize != 0 {
-		panic("len of input is not divisible by block size")
+		return nil, errors.New("len of input is not divisible by block size")
 	}
 	paddingLength := input[len(input)-1]
 	if paddingLength > byte(blockSize) {
-		panic(fmt.Sprintf("padding length is greater than block size (%d, %d)", paddingLength, blockSize))
+		return nil, fmt.Errorf("padding length is greater than block size (%d, %d)", paddingLength, blockSize)
+	}
+	for _, value := range input[len(input)-int(paddingLength):] {
+		if value != paddingLength {
+			return nil, errors.New("invalid padding")
+		}
 	}
 
-	return input[:len(input)-int(paddingLength)]
+	return input[:len(input)-int(paddingLength)], nil
 }
 
 func EncryptECBMode(b cipher.Block, plaintext []byte) []byte {
@@ -77,7 +82,11 @@ func DecryptECBMode(b cipher.Block, ciphertext []byte) ([]byte, error) {
 
 	// remove padding
 	// plaintext = plaintext[:len(plaintext)-int(plaintext[len(plaintext)-1])]
-	plaintext = PKCS7Unpad(plaintext, blockSize)
+	var err error
+	plaintext, err = PKCS7Unpad(plaintext, blockSize)
+	if err != nil {
+		return nil, err
+	}
 
 	return plaintext, nil
 }
