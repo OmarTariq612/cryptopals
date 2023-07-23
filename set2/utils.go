@@ -1,8 +1,11 @@
 package set2
 
 import (
+	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rand"
 	"errors"
+	"fmt"
 )
 
 // xor bytes in place (a)
@@ -36,6 +39,18 @@ func IsItECB(input []byte, blockSize int) (bool, error) {
 	return false, nil
 }
 
+func PKCS7Unpad(input []byte, blockSize int) []byte {
+	if len(input)%blockSize != 0 {
+		panic("len of input is not divisible by block size")
+	}
+	paddingLength := input[len(input)-1]
+	if paddingLength > byte(blockSize) {
+		panic(fmt.Sprintf("padding length is greater than block size (%d, %d)", paddingLength, blockSize))
+	}
+
+	return input[:len(input)-int(paddingLength)]
+}
+
 func EncryptECBMode(b cipher.Block, plaintext []byte) []byte {
 	blockSize := b.BlockSize()
 	// add padding
@@ -43,7 +58,7 @@ func EncryptECBMode(b cipher.Block, plaintext []byte) []byte {
 	ciphertext := make([]byte, len(plaintext))
 
 	for i := 0; i < len(plaintext); i += blockSize {
-		b.Decrypt(ciphertext[i:i+blockSize], plaintext[i:i+blockSize])
+		b.Encrypt(ciphertext[i:i+blockSize], plaintext[i:i+blockSize])
 	}
 
 	return ciphertext
@@ -61,7 +76,28 @@ func DecryptECBMode(b cipher.Block, ciphertext []byte) ([]byte, error) {
 	}
 
 	// remove padding
-	plaintext = plaintext[:len(plaintext)-int(plaintext[len(plaintext)-1])]
+	// plaintext = plaintext[:len(plaintext)-int(plaintext[len(plaintext)-1])]
+	plaintext = PKCS7Unpad(plaintext, blockSize)
 
 	return plaintext, nil
+}
+
+func NewAES128Cipher() (cipher.Block, error) {
+	key := make([]byte, 16)
+	if _, err := rand.Read(key); err != nil {
+		return nil, err
+	}
+
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	return block, nil
+}
+
+func NewECBEncrypterFromBlockCipher(block cipher.Block) Encrypter {
+	return func(b []byte) ([]byte, error) {
+		return EncryptECBMode(block, b), nil
+	}
 }
