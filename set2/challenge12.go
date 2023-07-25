@@ -4,12 +4,11 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/rand"
-	"encoding/base64"
 	"errors"
 	"fmt"
 )
 
-func NewECBEncrypter() Encrypter {
+func NewECBSimpleEncrypter(unkownBytes []byte) Encrypter {
 	key := make([]byte, 16)
 	if _, err := rand.Read(key); err != nil {
 		panic(err)
@@ -18,26 +17,10 @@ func NewECBEncrypter() Encrypter {
 	if err != nil {
 		panic(err)
 	}
-	unKnownString := "Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkgaGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBqdXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUgYnkK"
-	unKnownBytes, err := base64.StdEncoding.DecodeString(unKnownString)
-	// unKnownBytes := []byte("Hello Teacher Hello Teacher How are you How are you ??? I'm fine thank you I'm fine thank you HOW ARE YOUUUUUU!")
-	if err != nil {
-		panic(err)
-	}
-
-	// fmt.Println(len(unKnownBytes))
 
 	return func(plaintext []byte) ([]byte, error) {
-		blockSize := block.BlockSize()
-		plaintext = append(plaintext, unKnownBytes...)
-		plaintext = PKCS7Pad(plaintext, blockSize)
-		ciphertext := make([]byte, len(plaintext))
-
-		for i := 0; i < len(plaintext)/blockSize; i++ {
-			block.Encrypt(ciphertext[i*blockSize:(i+1)*blockSize], plaintext[i*blockSize:(i+1)*blockSize])
-		}
-
-		return ciphertext, nil
+		plaintext = append(plaintext, unkownBytes...)
+		return EncryptECBMode(block, plaintext), nil
 	}
 }
 

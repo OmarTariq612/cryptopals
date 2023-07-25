@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"net/url"
 	"strconv"
 	"strings"
 )
@@ -29,14 +28,14 @@ func (es Elements) String() string {
 }
 
 func ParseElements(s string) (Elements, error) {
-	queryParserRes, err := url.ParseQuery(s)
-	if err != nil {
-		return nil, err
-	}
-
-	res := make([]Element, 0, len(queryParserRes))
-	for key, value := range queryParserRes {
-		res = append(res, Element{Key: key, Value: value[0]})
+	pairs := strings.Split(s, "&")
+	res := make([]Element, 0, len(pairs))
+	for _, pair := range pairs {
+		keyValue := strings.Split(pair, "=")
+		if len(keyValue) != 2 {
+			return nil, fmt.Errorf("invalid pair (%s)", pair)
+		}
+		res = append(res, Element{Key: keyValue[0], Value: keyValue[1]})
 	}
 
 	return res, nil

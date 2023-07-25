@@ -18,22 +18,22 @@ func TestProfileFor(t *testing.T) {
 func TestMakeNewAdminAccount(t *testing.T) {
 	block, err := NewAES128Cipher()
 	if err != nil {
-		t.Fatalf("err: %s\n", err.Error())
+		t.Fatalf("err: %s\n", err)
 	}
 
 	ciphertext, err := MakeNewAdminAccount(NewECBEncrypterFromBlockCipher(block))
 	if err != nil {
-		t.Fatalf("err: %s\n", err.Error())
+		t.Fatalf("err: %s\n", err)
 	}
 
 	plaintext, err := DecryptECBMode(block, ciphertext)
 	if err != nil {
-		t.Fatalf("err: %s\n", err.Error())
+		t.Fatalf("err: %s\n", err)
 	}
 
 	elements, err := ParseElements(string(plaintext))
 	if err != nil {
-		t.Fatalf("err: %s\n", err.Error())
+		t.Fatalf("err: %s\n", err)
 	}
 
 	fmt.Println(elements)
